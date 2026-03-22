@@ -82,4 +82,4 @@ inst(0x02, 2, 0x20)
 inst(0x0A, 0, 0)    
 
 cpu.run()
-print(f"\nResultado final em 0x20: {cpu.mem[0x20]}")
+print(f"\nResultado final em 0x20: {cpu.mem[0x20]}") 
