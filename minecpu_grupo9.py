@@ -14,27 +14,46 @@ class MiniCPU:
         self.pc += 3
         return op, a, b
     
+    def reg_ok(self, r):
+        return 0 <= r < len(self.reg)
+    
     def decode_execute(self, op, a, b):
+
         if op == 0x01:  # LOAD
-            self.reg[a] = self.mem[b]
+            if self.reg_ok(a):
+                self.reg[a] = self.mem[b]
+
         elif op == 0x02:  # STORE
-            self.mem[b] = self.reg[a]
+            if self.reg_ok(a):
+                self.mem[b] = self.reg[a]
+
         elif op == 0x03:  # ADD
-            self.reg[a] = (self.reg[a] + self.reg[b]) & 0xFF
+            if self.reg_ok(a) and self.reg_ok(b):
+                self.reg[a] = (self.reg[a] + self.reg[b]) & 0xFF
+
         elif op == 0x04:  # SUB
-            self.reg[a] = (self.reg[a] - self.reg[b]) & 0xFF
+            if self.reg_ok(a) and self.reg_ok(b):
+                self.reg[a] = (self.reg[a] - self.reg[b]) & 0xFF
+
         elif op == 0x05:  # MOV
-            self.reg[a] = b
+            if self.reg_ok(a):
+                self.reg[a] = b
+
         elif op == 0x06:  # CMP
-            self.zf = 1 if self.reg[a] == self.reg[b] else 0
+            if self.reg_ok(a) and self.reg_ok(b):
+                self.zf = 1 if self.reg[a] == self.reg[b] else 0
+
         elif op == 0x07:  # JMP
             self.pc = a
+
         elif op == 0x08:  # JZ
             if self.zf:
                 self.pc = a
+
         elif op == 0x09:  # JNZ
             if not self.zf:
                 self.pc = a
+
         elif op == 0x0A:  # HALT
             self.running = False
             
@@ -61,88 +80,92 @@ class MiniCPU:
 cpu = MiniCPU()
 
 # -----------------------------
-# Pré-carregar dados
-# -----------------------------
-
-cpu.mem[0x08] = 20  # limiar
-
-valores = [10, 25, 5, 30, 15, 40, 8, 22]
-
-for i in range(len(valores)):
-    cpu.mem[0x10 + i] = valores[i]
-
-# -----------------------------
-# Programa da CPU
+# Programa
 # -----------------------------
 
 program = [
 
-0x05,0,0,      # R0 = contador
-0x01,2,0x08,   # R2 = limiar
-0x05,3,1,      # R3 = 1
+0x05,0,0,
+0x01,2,0x30,
+0x05,3,1,
 
-# valor 10
+# 10
 0x01,1,0x10,
 0x04,1,2,
 0x06,1,0,
-0x08,24,
+0x08,24,0,
 0x03,0,3,
 
-# valor 25
+# 25
 0x01,1,0x11,
 0x04,1,2,
 0x06,1,0,
-0x08,39,
+0x08,39,0,
 0x03,0,3,
 
-# valor 5
+# 5
 0x01,1,0x12,
 0x04,1,2,
 0x06,1,0,
-0x08,54,
+0x08,54,0,
 0x03,0,3,
 
-# valor 30
+# 30
 0x01,1,0x13,
 0x04,1,2,
 0x06,1,0,
-0x08,69,
+0x08,69,0,
 0x03,0,3,
 
-# valor 15
+# 15
 0x01,1,0x14,
 0x04,1,2,
 0x06,1,0,
-0x08,84,
+0x08,84,0,
 0x03,0,3,
 
-# valor 40
+# 40
 0x01,1,0x15,
 0x04,1,2,
 0x06,1,0,
-0x08,99,
+0x08,99,0,
 0x03,0,3,
 
-# valor 8
+# 8
 0x01,1,0x16,
 0x04,1,2,
 0x06,1,0,
-0x08,114,
+0x08,114,0,
 0x03,0,3,
 
-# valor 22
+# 22
 0x01,1,0x17,
 0x04,1,2,
 0x06,1,0,
-0x08,129,
+0x08,129,0,
 0x03,0,3,
 
-0x02,0,0x20,   # salva resultado
-0x0A,0,0       # HALT
+0x02,0,0x20,
+0x0A,0,0
 ]
 
 for i in range(len(program)):
     cpu.mem[i] = program[i]
+
+# -----------------------------
+# Dados
+# -----------------------------
+
+cpu.mem[0x30] = 20
+
+valores = [10,25,5,30,15,40,8,22]
+
+for i in range(len(valores)):
+    cpu.mem[0x10+i] = valores[i]
+
+# -----------------------------
+# Executar
+# -----------------------------
 
 cpu.run()
 
