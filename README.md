@@ -5,3 +5,4 @@ Este projeto consiste na implementação de um simulador de processador funciona
 Grupo:
 Luiz Carlos Machado Portela Cunha
 Matheus Chaves Becker
+João Pedro Ferreira Dias
