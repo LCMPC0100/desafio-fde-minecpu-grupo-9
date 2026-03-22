@@ -59,5 +59,53 @@ cpu.mem[0x10:0x18] = [10, 25, 5, 30, 15, 40, 8, 22]
 
 
 
+p = 0
+def inst(op,a,b):
+    global p
+    cpu.mem[p] = op
+    cpu.mem[p+1] = a
+    cpu.mem[p+2] = b
+    p += 3
+
+
+# carregar limite em R1
+inst(0x01,1,0x08) # LOAD R1, 0x08
+
+# contador = 0
+inst(0x05,2,0) # MOV R2,0
+
+# constante 1
+inst(0x05,3,1) # MOV R3,1
+
+
+for addr in range(0x10,0x18):
+
+    inst(0x01,0,addr) # LOAD R0, valor
+
+    inst(0x06,0,1) # CMP R0,R1
+
+    # pula increm se igual
+    inst(0x08,p+9,0)
+
+    # copia pra comparar
+    inst(0x04,0,1) # R0 = R0 - limite
+
+    # se 0 ou neg n increm
+    inst(0x08,p+3,0)
+
+    # contador++
+    inst(0x03,2,3)
+
+
+# salvar
+inst(0x02,2,0x20) # STORE R2,0x20
+
+# executar
+inst(0x0A,0,0) # HALT
+
+
+cpu.run()
+
+print("\nResultado final:", cpu.mem[0x20])
 
    
